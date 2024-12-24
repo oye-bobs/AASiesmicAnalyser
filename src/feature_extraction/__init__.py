@@ -1,1 +1,3 @@
-from .extractor import SeismicFeatureExtractor
+from .extractor import FeatureExtractor
+
+__all__ = ['FeatureExtractor']

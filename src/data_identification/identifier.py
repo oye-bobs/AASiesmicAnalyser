@@ -1,12 +1,8 @@
-# src/data_identification/identifier.py
 import numpy as np
-from typing import Dict, Any, Union
 from pathlib import Path
+from typing import Dict, Any, Union
 
 class SeismicDataIdentifier:
-    """
-    Handles identification and basic validation of seismic data files.
-    """
     def __init__(self):
         self.supported_formats = {
             'segy': ['segy', 'sgy'],
@@ -14,42 +10,48 @@ class SeismicDataIdentifier:
             'su': ['su'],
             'rsf': ['rsf']
         }
-
-    def identify_data_format(self, file_path: Union[str, Path]) -> Dict[str, Any]:
+    
+    def identify_data_format(self, data_path: str) -> str:
         """
-        Identify the format and basic characteristics of a seismic data file.
-
+        Identify the format of the seismic data file.
+        
         Args:
-            file_path (Union[str, Path]): Path to the seismic data file
-
+            data_path (str): Path to the seismic data file
+            
         Returns:
-            Dict[str, Any]: Dictionary containing format information and basic metadata
+            str: Identified format
         """
-        path = Path(file_path)
+        path = Path(data_path)
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {data_path}")
+            
         extension = path.suffix.lower().lstrip('.')
-
-        # Identify file format
-        format_type = self._get_format_type(extension)
-
-        # Basic file metadata
-        metadata = {
-            'format': format_type,
-            'filename': path.name,
-            'size': path.stat().st_size if path.exists() else None,
-            'extension': extension
-        }
-
-        return metadata
-
-    def _get_format_type(self, extension: str) -> str:
-        """Determine the format type based on file extension."""
-        for format_type, extensions in self.supported_formats.items():
+        
+        for format_name, extensions in self.supported_formats.items():
             if extension in extensions:
-                return format_type
-        return 'unknown'
-
-    def validate_format(self, file_path: Union[str, Path]) -> bool:
-        """Check if the file format is supported."""
-        path = Path(file_path)
-        extension = path.suffix.lower().lstrip('.')
-        return any(extension in exts for exts in self.supported_formats.values())
+                return format_name
+                
+        return "unknown"
+    
+    def analyze_seismic_data(self, data_path: str) -> Dict[str, Any]:
+        """
+        Analyze seismic data file and extract metadata.
+        
+        Args:
+            data_path (str): Path to seismic data file
+            
+        Returns:
+            Dict[str, Any]: Analysis results including format and metadata
+        """
+        path = Path(data_path)
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {data_path}")
+            
+        format_type = self.identify_data_format(data_path)
+        
+        return {
+            'format': format_type,
+            'file_size': path.stat().st_size,
+            'last_modified': path.stat().st_mtime,
+            'status': 'success'
+        }

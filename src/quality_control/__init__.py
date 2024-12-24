@@ -1,1 +1,3 @@
-from .controller import SeismicQualityController
+from .controller import QualityController
+
+__all__ = ['QualityController']

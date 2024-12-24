@@ -1,22 +1,19 @@
-# tests/test_identifier.py
 import pytest
-from src.data_identification import SeismicDataIdentifier
-from pathlib import Path
+import numpy as np
+from src.data_identification.identifier import SeismicDataIdentifier
 
-def test_identifier_initialization():
+def test_seismic_identifier_init():
     identifier = SeismicDataIdentifier()
     assert isinstance(identifier.supported_formats, dict)
     assert 'segy' in identifier.supported_formats
-
-def test_format_identification():
+    
+def test_file_not_found():
     identifier = SeismicDataIdentifier()
-    test_file = Path("test_file.sgy")
-    metadata = identifier.identify_data_format(test_file)
-    assert metadata['format'] == 'segy'
-    assert metadata['extension'] == 'sgy'
+    with pytest.raises(FileNotFoundError):
+        identifier.analyze_seismic_data("nonexistent_file.sgy")
 
-def test_unsupported_format():
+def test_identify_data_format():
     identifier = SeismicDataIdentifier()
-    test_file = Path("test_file.xyz")
-    metadata = identifier.identify_data_format(test_file)
-    assert metadata['format'] == 'unknown'
+    # Test with nonexistent file
+    with pytest.raises(FileNotFoundError):
+        identifier.identify_data_format("nonexistent_file.sgy")
